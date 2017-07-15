@@ -42,4 +42,5 @@
     <string name="image">Image</string>
     <string name="no_items_in_inventory">No items in inventory</string>
     <string name="quantity">Quantity:</string>
+    <string name="must_have_name">Item must have a name.</string>
 </resources>

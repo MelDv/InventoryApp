@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,11 +16,9 @@ import android.widget.TextView;
 
 import com.example.android.inventoryapp.data.InventoryContract;
 
+import static android.R.attr.id;
+
 public class InventoryCursorAdapter extends CursorAdapter {
-    private int quantityInt;
-    private int id;
-    private TextView quantityView;
-    private Context currentContext;
 
     /**
      * Constructs a new InventoryCursorAdapter.
@@ -53,10 +52,10 @@ public class InventoryCursorAdapter extends CursorAdapter {
      */
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        currentContext = context;
+        final Context currentContext = context;
         TextView name = (TextView) view.findViewById(R.id.name);
         TextView price = (TextView) view.findViewById(R.id.price);
-        quantityView = (TextView) view.findViewById(R.id.quantity);
+        final TextView quantityView = (TextView) view.findViewById(R.id.quantity);
         ImageView image = (ImageView) view.findViewById(R.id.image);
 
         int idIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry._ID);
@@ -65,10 +64,9 @@ public class InventoryCursorAdapter extends CursorAdapter {
         int quantityIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_QUANTITY);
         int imageIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_IMAGE);
 
-        id = cursor.getInt(idIndex);
         String nameString = cursor.getString(nameIndex);
         int priceInt = cursor.getInt(priceIndex);
-        quantityInt = cursor.getInt(quantityIndex);
+        final int quantityInt = cursor.getInt(quantityIndex);
         Integer imageInt = cursor.getInt(imageIndex);
 
         if (imageInt == null) {
@@ -80,19 +78,24 @@ public class InventoryCursorAdapter extends CursorAdapter {
         quantityView.setText(String.valueOf(quantityInt));
         image.setImageResource(imageInt);
 
-        Button saleButton = (Button) view.findViewById(R.id.sale_button);
+        final Button saleButton = (Button) view.findViewById(R.id.sale_button);
+        saleButton.setTag(id);
         saleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                int temp = 0;
+                Log.i("InventoryCursorAdapter", String.valueOf(quantityInt));
                 if (quantityInt > 0) {
-                    quantityInt--;
+                    temp = quantityInt - 1;
                 }
-
+                Log.i("InventoryCursorAdapter", String.valueOf(temp));
+                int currentItemId = Integer.parseInt(saleButton.getTag().toString());
+                Log.i(" currentItemId", String.valueOf(currentItemId));
                 ContentValues values = new ContentValues();
-                values.put(InventoryContract.InventoryEntry.COLUMN_QUANTITY, quantityInt);
-                Uri uri = ContentUris.withAppendedId(InventoryContract.InventoryEntry.CONTENT_URI, id);
+                values.put(InventoryContract.InventoryEntry.COLUMN_QUANTITY, temp);
+                Uri uri = ContentUris.withAppendedId(InventoryContract.InventoryEntry.CONTENT_URI, currentItemId);
                 currentContext.getContentResolver().update(uri, values, null, null);
-                quantityView.setText(String.valueOf(quantityInt));
+                quantityView.setText(String.valueOf(temp));
             }
         });
     }

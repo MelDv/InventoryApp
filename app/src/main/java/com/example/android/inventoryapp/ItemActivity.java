@@ -225,7 +225,6 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
 
         if (mCurrentItemUri == null) {
             Uri newUri = getContentResolver().insert(InventoryContract.InventoryEntry.CONTENT_URI, values);
-
             if (newUri == null) {
                 Toast.makeText(this, getString(R.string.saving_error),
                         Toast.LENGTH_SHORT).show();
@@ -263,6 +262,11 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        String nameString = mNameEdit.getText().toString().trim();
+        if (nameString == null || nameString.isEmpty()) {
+            mNameEdit.setError("An item must have a name.");
+            return false;
+        }
         switch (item.getItemId()) {
             case R.id.action_save:
                 saveItem();
@@ -387,7 +391,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
         mNameEdit.setText("");
         mDescriptionEdit.setText("");
         mPriceEdit.setText("");
-        mQuantity.setText("Quantity: -");
+        mQuantity.setText("0");
         mSupplierSpinner.setSelection(0);
 
         mImageSpinner.setSelection(InventoryContract.InventoryEntry.DEFAULT_IMAGE);
@@ -402,8 +406,6 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
         builder.setPositiveButton(getString(R.string.discard), discardButtonClickListener);
         builder.setNegativeButton(getString(R.string.keep_editing), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                // User clicked the "Keep editing" button, so dismiss the dialog
-                // and continue editing the pet.
                 if (dialog != null) {
                     dialog.dismiss();
                 }

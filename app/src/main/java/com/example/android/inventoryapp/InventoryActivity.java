@@ -57,7 +57,6 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
                 Log.i(LOG_TAG, "setOnItemClickListener");
             }
         });
-
         getLoaderManager().initLoader(INVENTORY_LOADER, null, this);
     }
 
