@@ -1,0 +1,45 @@
+<resources>
+
+    <!--Array strings-->
+    <string name="supplier_local">Local</string>
+    <string name="supplier_china">China</string>
+    <string name="supplier_usa">USA</string>
+
+    <string name="image_default">Default</string>
+    <string name="image_lamp">Lamp</string>
+    <string name="image_table">Table</string>
+    <string name="image_sofa">Sofa</string>
+
+    <!--Other-->
+    <string name="app_name">InventoryApp</string>
+    <string name="sale">Sale</string>
+    <string name="name">Name</string>
+    <string name="price">Price</string>
+    <string name="description">Description</string>
+    <string name="re_order">Re-order</string>
+    <string name="minus" translatable="false">-</string>
+    <string name="plus" translatable="false">+</string>
+    <string name="insert_dummy_data">Insert dummy data</string>
+    <string name="delete_all_items">Delete all items</string>
+    <string name="add_new_item">Add new item</string>
+    <string name="edit_item">Edit item</string>
+
+    <string name="select_image">Select image</string>
+    <string name="select_supplier">Select supplier</string>
+    <string name="saving_error">Error with saving item</string>
+    <string name="item_saved">Item was saved</string>
+    <string name="error_updating">Error with updating item</string>
+    <string name="item_updated">Item was updated</string>
+    <string name="discard_changes">Discard changes and quit editing?</string>
+    <string name="discard">Discard</string>
+    <string name="keep_editing">Keep editing</string>
+    <string name="delete_item">Delete item?</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="edit_error_delete">Deleting item failed</string>
+    <string name="edit_item_deleted">Item deleted</string>
+    <string name="supplier">Supplier</string>
+    <string name="image">Image</string>
+    <string name="no_items_in_inventory">No items in inventory</string>
+    <string name="quantity">Quantity:</string>
+</resources>
