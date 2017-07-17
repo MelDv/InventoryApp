@@ -7,13 +7,15 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -29,12 +31,15 @@ import android.widget.Toast;
 
 import com.example.android.inventoryapp.data.InventoryContract;
 
+import java.io.IOException;
+
 /**
  * Created by maela on 14.7.2017.
  */
 
 public class ItemActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int EXISTING_INVENTORY_LOADER = 0;
+    private static final int ADDED_IMAGE_INT = 10;
     private Uri mCurrentItemUri;
     private Spinner mImageSpinner;
     private EditText mNameEdit;
@@ -42,7 +47,8 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
     private EditText mDescriptionEdit;
     private Spinner mSupplierSpinner;
     private ImageView mImageView;
-    private Integer mImage;
+    private Uri mImageUri;
+    private String mImage;
     private int mSupplier;
     private TextView mQuantity;
     private int quantityInt;
@@ -73,7 +79,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             getLoaderManager().initLoader(EXISTING_INVENTORY_LOADER, null, this);
         }
 
-        mImageSpinner = (Spinner) findViewById(R.id.spinner_image);
+        mImageSpinner = (Spinner) findViewById(R.id.image_spinner);
         mSupplierSpinner = (Spinner) findViewById(R.id.spinner_suppliers);
 
         mNameEdit = (EditText) findViewById(R.id.edit_name);
@@ -92,6 +98,9 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
         setupImageSpinner();
         setupSupplierSpinner();
 
+        Button addImage = (Button) findViewById(R.id.add_image_button);
+        addImage.setOnTouchListener(mTouchListener);
+
         Button reOrder = (Button) findViewById(R.id.edit_order);
         Button minus = (Button) findViewById(R.id.minus);
         minus.setOnTouchListener(mTouchListener);
@@ -104,7 +113,6 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onClick(View view) {
                 String temp = quantityView.getText().toString();
-                Log.i("ItemActivity", temp);
                 quantityInt = Integer.parseInt(temp);
                 if (quantityInt > 0) {
                     quantityInt--;
@@ -117,7 +125,6 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onClick(View view) {
                 String temp = quantityView.getText().toString();
-                Log.i("ItemActivity", temp);
                 quantityInt = Integer.parseInt(temp);
                 quantityInt++;
                 quantityView.setText(String.valueOf(quantityInt));
@@ -131,7 +138,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
                 if (name != null || name.isEmpty()) {
                     Intent intent = new Intent(Intent.ACTION_SENDTO);
                     intent.setData(Uri.parse("mailto:"));
-                    intent.putExtra(Intent.EXTRA_SUBJECT, "Re-order " + name);
+                    intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.re_order_headline) + " " + name);
                     if (intent.resolveActivity(getPackageManager()) != null) {
                         startActivity(intent);
                     }
@@ -139,6 +146,51 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         });
 
+        addImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent;
+                if (Build.VERSION.SDK_INT < 19) {
+                    intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                } else {
+                    intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                }
+                intent.setType("image/*");
+                startActivityForResult(Intent.createChooser(intent, getString(R.string.choose_item_image)), ADDED_IMAGE_INT);
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == ADDED_IMAGE_INT && (resultCode == RESULT_OK)) {
+            try {
+                mImageUri = data.getData();
+                int takeFlags = data.getFlags();
+                takeFlags &= (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                try {
+                    getContentResolver().takePersistableUriPermission(mImageUri, takeFlags);
+                } catch (SecurityException e) {
+                    e.printStackTrace();
+                }
+
+                Bitmap mBitmap = null;
+                mImage = mImageUri.toString();
+                try {
+                    mBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mImageUri);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                mBitmap = BitmapHandler.getResizedBitmap(mBitmap, 100);
+                mImageView.setImageBitmap(mBitmap);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void setupImageSpinner() {
@@ -152,22 +204,33 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
         mImageSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                int temp = 0;
                 String selection = (String) parent.getItemAtPosition(position);
                 if (!TextUtils.isEmpty(selection)) {
                     if (selection.equals(getString(R.string.image_lamp))) {
-                        mImage = (R.drawable.lamp);
+                        temp = R.drawable.lamp;
+                        mImageUri = null;
+                        mImageView.setImageResource(temp);
                     } else if (selection.equals(getString(R.string.image_sofa))) {
-                        mImage = (R.drawable.sofa);
+                        temp = R.drawable.sofa;
+                        mImageUri = null;
+                        mImageView.setImageResource(temp);
                     } else if (selection.equals(getString(R.string.image_table))) {
-                        mImage = (R.drawable.table);
+                        temp = R.drawable.table;
+                        mImageUri = null;
+                        mImageView.setImageResource(temp);
                     }
+                    mImage = String.valueOf(temp);
                 }
-                mImageView.setImageResource(mImage);
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-                mImage = InventoryContract.InventoryEntry.DEFAULT_IMAGE;
+                if (mImageUri == null) {
+                    mImage = InventoryContract.InventoryEntry.DEFAULT_IMAGE;
+                } else {
+                    mImage = mImageUri.toString();
+                }
             }
         });
     }
@@ -208,10 +271,9 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
         String priceString = mPriceEdit.getText().toString().trim();
         quantityInt = Integer.parseInt(mQuantity.getText().toString());
 
-
         if (mCurrentItemUri == null &&
                 TextUtils.isEmpty(nameString) && TextUtils.isEmpty(descriptionString) &&
-                TextUtils.isEmpty(priceString)) {
+                TextUtils.isEmpty(priceString) && mImageUri == null) {
             return;
         }
 
@@ -221,7 +283,12 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
         values.put(InventoryContract.InventoryEntry.COLUMN_DESCRIPTION, descriptionString);
         values.put(InventoryContract.InventoryEntry.COLUMN_QUANTITY, quantityInt);
         values.put(InventoryContract.InventoryEntry.COLUMN_SUPPLIER, mSupplier);
-        values.put(InventoryContract.InventoryEntry.COLUMN_IMAGE, mImage);
+
+        if (mImageUri == null) {
+            values.put(InventoryContract.InventoryEntry.COLUMN_IMAGE, mImage);
+        } else {
+            values.put(InventoryContract.InventoryEntry.COLUMN_IMAGE, mImageUri.toString());
+        }
 
         if (mCurrentItemUri == null) {
             Uri newUri = getContentResolver().insert(InventoryContract.InventoryEntry.CONTENT_URI, values);
@@ -264,7 +331,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
     public boolean onOptionsItemSelected(MenuItem item) {
         String nameString = mNameEdit.getText().toString().trim();
         if (nameString == null || nameString.isEmpty()) {
-            mNameEdit.setError("An item must have a name.");
+            mNameEdit.setError(getString(R.string.no_name_error));
             return false;
         }
         switch (item.getItemId()) {
@@ -347,7 +414,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
 
             String name = cursor.getString(nameIndex);
             String desc = cursor.getString(descriptionIndex);
-            mImage = cursor.getInt(imageIndex);
+            mImage = cursor.getString(imageIndex);
             int price = cursor.getInt(priceIndex);
             int quantity = cursor.getInt(quantityIndex);
             int supplier = cursor.getInt(supplierIndex);
@@ -357,20 +424,23 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
             mPriceEdit.setText(Integer.toString(price));
             mQuantity.setText(Integer.toString(quantity));
 
-            if (mImage == null) {
+            if (mImage == null || mImage.isEmpty()) {
                 mImage = InventoryContract.InventoryEntry.DEFAULT_IMAGE;
-            }
-            mImageView.setImageResource(mImage);
-
-            switch (mImage) {
-                case R.drawable.lamp:
-                    mImageSpinner.setSelection(0);
-                    break;
-                case R.drawable.table:
-                    mImageSpinner.setSelection(2);
-                    break;
-                case R.drawable.sofa:
-                    mImageSpinner.setSelection(1);
+                mImageView.setImageResource(Integer.parseInt(mImage));
+                setSelection();
+            } else if (TextUtils.isDigitsOnly(mImage)) {
+                mImageView.setImageResource(Integer.parseInt(mImage));
+                setSelection();
+            } else {
+                Bitmap mBitmap = null;
+                mImageUri = Uri.parse(mImage);
+                try {
+                    mBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mImageUri);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                mBitmap = BitmapHandler.getResizedBitmap(mBitmap, 100);
+                mImageView.setImageBitmap(mBitmap);
             }
 
             switch (supplier) {
@@ -386,6 +456,22 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
         }
     }
 
+    private void setSelection() {
+        switch (Integer.parseInt(mImage)) {
+            case R.drawable.lamp:
+                mImageSpinner.setSelection(1);
+                break;
+            case R.drawable.table:
+                mImageSpinner.setSelection(3);
+                break;
+            case R.drawable.sofa:
+                mImageSpinner.setSelection(2);
+            default:
+                mImageSpinner.setSelection(0);
+                break;
+        }
+    }
+
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mNameEdit.setText("");
@@ -393,10 +479,11 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
         mPriceEdit.setText("");
         mQuantity.setText("0");
         mSupplierSpinner.setSelection(0);
+        mImageUri = null;
 
-        mImageSpinner.setSelection(InventoryContract.InventoryEntry.DEFAULT_IMAGE);
+        mImageSpinner.setSelection(Integer.parseInt(InventoryContract.InventoryEntry.DEFAULT_IMAGE));
         mImage = InventoryContract.InventoryEntry.DEFAULT_IMAGE;
-        mImageView.setImageResource(mImage);
+        mImageView.setImageResource(Integer.parseInt(mImage));
     }
 
     private void showUnsavedChangesDialog(

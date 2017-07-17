@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
     android:orientation="vertical"
     android:padding="@dimen/margin">
 
@@ -58,25 +59,48 @@
         </RelativeLayout>
 
         <TextView
+            android:id="@+id/image_spinner_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin"
+            android:layout_margin="@dimen/margin"
             android:inputType="textCapWords"
-            android:paddingLeft="@dimen/min_padding"
-            android:text="@string/image" />
+            android:text="@string/add_or_select_image"
+            android:textStyle="bold" />
 
-        <Spinner
-            android:id="@+id/spinner_image"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/spinner_height"
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center">
 
-            android:prompt="@string/select_image"
-            android:spinnerMode="dialog"></Spinner>
+            <Spinner
+                android:id="@+id/image_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/spinner_height"
+                android:layout_marginLeft="@dimen/margin"
+                android:layout_marginRight="@dimen/margin"
+                android:prompt="@string/select_image"
+                android:spinnerMode="dialog"></Spinner>
+
+            <Button
+                android:id="@+id/add_image_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/margin"
+                android:layout_toRightOf="@+id/image_spinner"
+                android:backgroundTint="@color/colorAccent"
+                android:text="@string/add_image" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="@dimen/line_width"
+            android:layout_height="1dp"
+            android:layout_gravity="center"
+            android:layout_margin="@dimen/margin"
+            android:background="@android:color/darker_gray" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             android:orientation="horizontal">
 
             <ImageView
@@ -115,7 +139,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
-                        android:hint="€" />
+                        android:hint="@string/euro" />
                 </RelativeLayout>
 
                 <TextView
@@ -131,7 +155,6 @@
                     android:layout_height="@dimen/spinner_height"
                     android:paddingRight="@dimen/min_padding"
                     android:spinnerMode="dialog" />
-
             </LinearLayout>
         </LinearLayout>
 

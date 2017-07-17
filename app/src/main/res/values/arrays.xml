@@ -7,6 +7,7 @@
     </string-array>
 
     <string-array name="array_image_options">
+        <item>@string/image_default</item>
         <item>@string/image_lamp</item>
         <item>@string/image_sofa</item>
         <item>@string/image_table</item>

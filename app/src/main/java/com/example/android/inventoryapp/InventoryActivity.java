@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,7 +22,6 @@ import com.example.android.inventoryapp.data.InventoryContract;
 public class InventoryActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private InventoryCursorAdapter adapter;
     private static final int INVENTORY_LOADER = 0;
-    public static final String LOG_TAG = InventoryActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,13 +46,11 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
         inventoryView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.i(LOG_TAG, "onItemClick");
                 Intent intent = new Intent(InventoryActivity.this, ItemActivity.class);
 
                 Uri currentItemUri = ContentUris.withAppendedId(InventoryContract.InventoryEntry.CONTENT_URI, id);
                 intent.setData(currentItemUri);
                 startActivity(intent);
-                Log.i(LOG_TAG, "setOnItemClickListener");
             }
         });
         getLoaderManager().initLoader(INVENTORY_LOADER, null, this);

@@ -11,7 +11,7 @@
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:focusable="true"/>
+        android:focusable="true" />
 
     <TextView
         android:id="@+id/empty_view"
@@ -29,5 +29,4 @@
         android:layout_margin="@dimen/margin"
         android:src="@drawable/ic_action_add"
         app:fabSize="auto" />
-
 </RelativeLayout>

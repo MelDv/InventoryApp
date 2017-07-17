@@ -17,7 +17,7 @@ public class InventoryContract {
 
     public static abstract class InventoryEntry implements BaseColumns {
         public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_INVENTORY);
-        public static final int DEFAULT_IMAGE = R.drawable.lamp;
+        public static final String DEFAULT_IMAGE = String.valueOf(R.drawable.lamp);
         /**
          * MIME type of CONTENT_URI for an inventory list.
          */

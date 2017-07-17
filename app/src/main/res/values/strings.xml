@@ -5,7 +5,7 @@
     <string name="supplier_china">China</string>
     <string name="supplier_usa">USA</string>
 
-    <string name="image_default">Default</string>
+    <string name="image_default">User\'s image</string>
     <string name="image_lamp">Lamp</string>
     <string name="image_table">Table</string>
     <string name="image_sofa">Sofa</string>
@@ -39,8 +39,13 @@
     <string name="edit_error_delete">Deleting item failed</string>
     <string name="edit_item_deleted">Item deleted</string>
     <string name="supplier">Supplier</string>
-    <string name="image">Image</string>
+    <string name="add_or_select_image">Choose an image from the list or add your own</string>
     <string name="no_items_in_inventory">No items in inventory</string>
     <string name="quantity">Quantity:</string>
     <string name="must_have_name">Item must have a name.</string>
+    <string name="add_image">Add image</string>
+    <string name="euro" translatable="false">€</string>
+    <string name="re_order_headline">Re-order</string>
+    <string name="choose_item_image">Choose item image</string>
+    <string name="no_name_error">An item must have a name.</string>
 </resources>

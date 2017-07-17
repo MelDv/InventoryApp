@@ -4,8 +4,10 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
-import android.util.Log;
+import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,10 +18,9 @@ import android.widget.TextView;
 
 import com.example.android.inventoryapp.data.InventoryContract;
 
-import static android.R.attr.id;
+import java.io.IOException;
 
 public class InventoryCursorAdapter extends CursorAdapter {
-
     /**
      * Constructs a new InventoryCursorAdapter.
      *
@@ -56,7 +57,7 @@ public class InventoryCursorAdapter extends CursorAdapter {
         TextView name = (TextView) view.findViewById(R.id.name);
         TextView price = (TextView) view.findViewById(R.id.price);
         final TextView quantityView = (TextView) view.findViewById(R.id.quantity);
-        ImageView image = (ImageView) view.findViewById(R.id.image);
+        ImageView mImageView = (ImageView) view.findViewById(R.id.image);
 
         int idIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry._ID);
         int nameIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_NAME);
@@ -64,19 +65,32 @@ public class InventoryCursorAdapter extends CursorAdapter {
         int quantityIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_QUANTITY);
         int imageIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_IMAGE);
 
+        final int id = cursor.getInt(idIndex);
         String nameString = cursor.getString(nameIndex);
         int priceInt = cursor.getInt(priceIndex);
         final int quantityInt = cursor.getInt(quantityIndex);
-        Integer imageInt = cursor.getInt(imageIndex);
+        String imageString = cursor.getString(imageIndex);
+        Bitmap mBitmap = null;
 
-        if (imageInt == null) {
-            imageInt = InventoryContract.InventoryEntry.DEFAULT_IMAGE;
+        if (imageString == null || imageString.isEmpty()) {
+            imageString = InventoryContract.InventoryEntry.DEFAULT_IMAGE;
+            mImageView.setImageResource(Integer.parseInt(imageString));
+        } else if (TextUtils.isDigitsOnly(imageString)) {
+            mImageView.setImageResource(Integer.parseInt(imageString));
+        } else {
+            Uri mImageUri = Uri.parse(imageString);
+            try {
+                mBitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), mImageUri);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            mBitmap = BitmapHandler.getResizedBitmap(mBitmap, 60);
+            mImageView.setImageBitmap(mBitmap);
         }
 
         name.setText(nameString);
         price.setText(String.valueOf(priceInt));
         quantityView.setText(String.valueOf(quantityInt));
-        image.setImageResource(imageInt);
 
         final Button saleButton = (Button) view.findViewById(R.id.sale_button);
         saleButton.setTag(id);
@@ -84,16 +98,12 @@ public class InventoryCursorAdapter extends CursorAdapter {
             @Override
             public void onClick(View v) {
                 int temp = 0;
-                Log.i("InventoryCursorAdapter", String.valueOf(quantityInt));
                 if (quantityInt > 0) {
                     temp = quantityInt - 1;
                 }
-                Log.i("InventoryCursorAdapter", String.valueOf(temp));
-                int currentItemId = Integer.parseInt(saleButton.getTag().toString());
-                Log.i(" currentItemId", String.valueOf(currentItemId));
                 ContentValues values = new ContentValues();
                 values.put(InventoryContract.InventoryEntry.COLUMN_QUANTITY, temp);
-                Uri uri = ContentUris.withAppendedId(InventoryContract.InventoryEntry.CONTENT_URI, currentItemId);
+                Uri uri = ContentUris.withAppendedId(InventoryContract.InventoryEntry.CONTENT_URI, id);
                 currentContext.getContentResolver().update(uri, values, null, null);
                 quantityView.setText(String.valueOf(temp));
             }
