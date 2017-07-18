@@ -272,8 +272,8 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
         quantityInt = Integer.parseInt(mQuantity.getText().toString());
 
         if (mCurrentItemUri == null &&
-                TextUtils.isEmpty(nameString) && TextUtils.isEmpty(descriptionString) &&
-                TextUtils.isEmpty(priceString) && mImageUri == null) {
+                TextUtils.isEmpty(nameString) || TextUtils.isEmpty(descriptionString) ||
+                TextUtils.isEmpty(priceString) || (mImage.equals("0") && mImageUri == null)) {
             return;
         }
 
@@ -330,10 +330,35 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         String nameString = mNameEdit.getText().toString().trim();
+        String priceString = mPriceEdit.getText().toString().trim();
+        String descriptionString = mDescriptionEdit.getText().toString().trim();
+        String quantityString = mQuantity.getText().toString().trim();
         if (nameString == null || nameString.isEmpty()) {
+            mNameEdit.requestFocus();
             mNameEdit.setError(getString(R.string.no_name_error));
             return false;
         }
+        if (priceString == null || priceString.isEmpty() || !TextUtils.isDigitsOnly(priceString)) {
+            mPriceEdit.setError(getString(R.string.no_price_error));
+            mPriceEdit.requestFocus();
+            return false;
+        }
+        if (descriptionString == null || descriptionString.isEmpty()) {
+            mDescriptionEdit.requestFocus();
+            mDescriptionEdit.setError(getString(R.string.no_descr_error));
+            return false;
+        }
+        if (quantityString == null || quantityString.isEmpty() || quantityString.equals("0")) {
+            mQuantity.requestFocus();
+            Toast.makeText(this, getString(R.string.no_quantity_error), Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (mImage.equals("0") && mImageUri == null) {
+            mImageSpinner.requestFocus();
+            Toast.makeText(this, getString(R.string.no_image_error), Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
         switch (item.getItemId()) {
             case R.id.action_save:
                 saveItem();
@@ -466,6 +491,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
                 break;
             case R.drawable.sofa:
                 mImageSpinner.setSelection(2);
+                break;
             default:
                 mImageSpinner.setSelection(0);
                 break;
@@ -482,8 +508,8 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
         mImageUri = null;
 
         mImageSpinner.setSelection(Integer.parseInt(InventoryContract.InventoryEntry.DEFAULT_IMAGE));
-        mImage = InventoryContract.InventoryEntry.DEFAULT_IMAGE;
-        mImageView.setImageResource(Integer.parseInt(mImage));
+        mImage = null;
+        mImageView = null;
     }
 
     private void showUnsavedChangesDialog(
@@ -510,14 +536,7 @@ public class ItemActivity extends AppCompatActivity implements LoaderManager.Loa
                 deleteItem();
             }
         });
-        builder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int id) {
-                if (dialog != null) {
-                    dialog.dismiss();
-                }
-            }
-        });
+        builder.setNegativeButton(R.string.cancel, null);
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }

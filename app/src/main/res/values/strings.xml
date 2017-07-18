@@ -48,4 +48,8 @@
     <string name="re_order_headline">Re-order</string>
     <string name="choose_item_image">Choose item image</string>
     <string name="no_name_error">An item must have a name.</string>
+    <string name="no_price_error">Set a price with numbers only.</string>
+    <string name="no_descr_error">Item must have a description</string>
+    <string name="no_quantity_error">Set quantity.</string>
+    <string name="no_image_error">Choose an image or add a new one.</string>
 </resources>

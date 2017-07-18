@@ -68,8 +68,7 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
         values.put(InventoryContract.InventoryEntry.COLUMN_SUPPLIER, InventoryContract.InventoryEntry.SUPPLIER_CHINA);
         values.put(InventoryContract.InventoryEntry.COLUMN_IMAGE, InventoryContract.InventoryEntry.DEFAULT_IMAGE);
         values.put(InventoryContract.InventoryEntry.COLUMN_PRICE, "35");
-
-        Uri newUri = getContentResolver().insert(InventoryContract.InventoryEntry.CONTENT_URI, values);
+        values.put(InventoryContract.InventoryEntry.COLUMN_DESCRIPTION, "Table lamp.");
     }
 
     @Override
